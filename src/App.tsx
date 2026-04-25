@@ -1,0 +1,32 @@
+import { useState } from 'react'
+
+function App() {
+  return (
+    <main className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-green-900 flex flex-col items-center justify-start py-16 px-4">
+      <header className="mb-12 text-center">
+        <h1 className="text-5xl md:text-6xl font-extrabold text-green-400 drop-shadow-lg tracking-tight mb-4">
+          My Games
+        </h1>
+        <p className="text-lg text-gray-300 max-w-xl mx-auto">
+          Welcome to my games collection! Explore and play the games below.
+        </p>
+      </header>
+      <section className="w-full max-w-3xl grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <a href="#" className="bg-gray-900 border border-green-600 font-mono text-left p-6 flex flex-col items-start justify-center hover:bg-green-950 transition group shadow-md rounded-none">
+          <span className="text-2xl mb-2 select-none">🎮</span>
+          <span className="text-lg font-bold text-green-400 group-hover:text-green-200 tracking-wider">GAME TITLE 1</span>
+        </a>
+        <a href="#" className="bg-gray-900 border border-green-600 font-mono text-left p-6 flex flex-col items-start justify-center hover:bg-green-950 transition group shadow-md rounded-none">
+          <span className="text-2xl mb-2 select-none">🕹️</span>
+          <span className="text-lg font-bold text-green-400 group-hover:text-green-200 tracking-wider">GAME TITLE 2</span>
+        </a>
+        <a href="#" className="bg-gray-900 border border-green-600 font-mono text-left p-6 flex flex-col items-start justify-center hover:bg-green-950 transition group shadow-md rounded-none">
+          <span className="text-2xl mb-2 select-none">🧩</span>
+          <span className="text-lg font-bold text-green-400 group-hover:text-green-200 tracking-wider">GAME TITLE 3</span>
+        </a>
+      </section>
+    </main>
+  )
+}
+
+export default App
