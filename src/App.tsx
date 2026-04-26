@@ -1,5 +1,3 @@
-import { useState } from 'react'
-
 function App() {
   return (
     <main className="min-h-screen pixel-bg flex flex-col items-center justify-start py-16 px-4">
