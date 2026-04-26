@@ -157,7 +157,31 @@ function Letterboxed() {
   }
 
   function handleBackspace() {
-    setGuess(g => g.slice(0, -1));
+    setGuess(g => {
+      if (g.length > 0) {
+        return g.slice(0, -1);
+      } else if (guesses.length > 0) {
+        // Pop last word and put it back in the input
+        const last = guesses[guesses.length - 1];
+        setGuesses(guesses.slice(0, -1));
+        return last;
+      }
+      return "";
+    });
+  }
+  // If not the first word, force the first letter to be the required one
+  const requiredFirstLetter = guesses.length > 0 ? guesses[guesses.length - 1].slice(-1) : null;
+
+  // Helper to enforce first letter
+  function enforceFirstLetter(input: string) {
+    if (!requiredFirstLetter) return input;
+    // Always ensure the first letter is requiredFirstLetter
+    if (input.length === 0) return requiredFirstLetter;
+    if (input[0] !== requiredFirstLetter) {
+      // Remove all occurrences of requiredFirstLetter and prepend it
+      return requiredFirstLetter + input.replaceAll(requiredFirstLetter, "").slice(0);
+    }
+    return input;
   }
 
   // Win condition: all letters used at least once
@@ -275,11 +299,26 @@ function Letterboxed() {
           </div>
         </div>
       {!isWin && (
-        <form onSubmit={handleSubmit} className="flex gap-2 mb-6 items-center">
+        <form
+          onSubmit={handleSubmit}
+          className="flex gap-2 mb-6 items-center"
+          onKeyDown={e => {
+            if (e.key === "Backspace" && guess.length === 0 && guesses.length > 0) {
+              e.preventDefault();
+              handleBackspace();
+            }
+          }}
+        >
           <input
             type="text"
             value={guess}
-            onChange={e => setGuess(e.target.value)}
+            onChange={e => {
+              let val = e.target.value.toUpperCase();
+              if (requiredFirstLetter) {
+                val = enforceFirstLetter(val);
+              }
+              setGuess(val);
+            }}
             className="px-4 py-2 rounded bg-gray-900 border border-green-600 text-green-200 font-mono focus:outline-none focus:ring-2 focus:ring-green-400"
             placeholder="Enter word..."
             disabled={isWin}
