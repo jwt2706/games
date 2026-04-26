@@ -13,10 +13,10 @@ function App() {
       </a>
       <header className="mb-12 text-center">
         <h1 className="text-5xl md:text-6xl font-extrabold text-green-400 drop-shadow-lg tracking-tight mb-4">
-          My Games
+          Daily Games
         </h1>
         <p className="text-lg text-gray-300 max-w-xl mx-auto">
-          Welcome to my games collection! Explore and play the games below.
+          Welcome to my daily games collection! Explore and play the games below everyday.
         </p>
       </header>
       <section className="w-full max-w-3xl grid grid-cols-1 sm:grid-cols-2 gap-6">

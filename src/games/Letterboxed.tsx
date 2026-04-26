@@ -59,7 +59,6 @@ function Letterboxed() {
   const [guess, setGuess] = useState("");
   const [guesses, setGuesses] = useState<string[]>([]);
   const [error, setError] = useState<string>("");
-  const [inputMode, setInputMode] = useState<'keyboard' | 'tap'>('keyboard');
   const [toast, setToast] = useState<string>("");
   const [wordSet, setWordSet] = useState<Set<string> | null>(null);
 
@@ -151,11 +150,9 @@ function Letterboxed() {
     setGuesses([]);
     setGuess("");
     setError("");
-    setInputMode('keyboard');
   }
 
   function handleLetterClick(l: string) {
-    setInputMode('tap');
     setGuess(g => g + l);
   }
 
@@ -264,57 +261,21 @@ function Letterboxed() {
             })}
           </div>
         </div>
-        <div className="mt-4 text-green-300 font-mono text-sm flex flex-col items-center">
-          <span>Unused letters: </span>
-          {unusedLetters.length === 0 ? (
-            <span className="text-green-400 font-bold">All used!</span>
-          ) : (
-            <div>
-              {unusedLetters.map((l, i) => (
-                <span key={i} className="inline-block mx-1 px-2 py-1 bg-gray-800 border border-green-700 rounded text-green-200">{l}</span>
-              ))}
-            </div>
-          )}
-          <div className="mt-2 flex gap-2">
-            {!isWin && (
-              <button
-                type="button"
-                className="px-3 py-1 rounded bg-gray-800 border border-green-700 text-green-200 font-mono hover:bg-green-700 hover:text-white transition"
-                onClick={handleReset}
-              >
-                Reset
-              </button>
-            )}
-            {inputMode === 'tap' && !isWin && (
-              <>
-                <button
-                  type="button"
-                  className="px-3 py-1 rounded bg-gray-800 border border-green-700 text-green-200 font-mono hover:bg-green-700 hover:text-white transition"
-                  onClick={handleBackspace}
-                >
-                  ⌫
-                </button>
-                <button
-                  type="button"
-                  className="px-3 py-1 rounded bg-green-700 text-white font-mono hover:bg-green-600 transition"
-                  onClick={submitGuess}
-                >
-                  Submit
-                </button>
-                <button
-                  type="button"
-                  className="px-3 py-1 rounded bg-gray-700 border border-green-700 text-green-200 font-mono hover:bg-green-700 hover:text-white transition"
-                  onClick={() => setInputMode('keyboard')}
-                >
-                  Keyboard
-                </button>
-              </>
+      </div>
+      <div className="w-full max-w-xs mb-4">
+          <div className="flex flex-wrap items-center gap-2 font-mono text-lg">
+            {guesses.map((word, i) => (
+              <span key={i} className="bg-gray-800 border border-green-700 rounded px-3 py-1 text-green-200">
+                {word}
+              </span>
+            ))}
+            {guesses.length > 0 && (
+              <span className="ml-2 text-green-400 text-xl font-bold">{guesses[guesses.length - 1].slice(-1)}</span>
             )}
           </div>
         </div>
-      </div>
-      {!isWin && inputMode === 'keyboard' && (
-        <form onSubmit={handleSubmit} className="flex gap-2 mb-6">
+      {!isWin && (
+        <form onSubmit={handleSubmit} className="flex gap-2 mb-6 items-center">
           <input
             type="text"
             value={guess}
@@ -323,15 +284,18 @@ function Letterboxed() {
             placeholder="Enter word..."
             disabled={isWin}
           />
-          <button type="submit" className="px-4 py-2 rounded bg-green-700 text-white font-mono hover:bg-green-600 transition" disabled={isWin}>
-            Submit
-          </button>
           <button
             type="button"
-            className="px-3 py-1 rounded bg-gray-700 border border-green-700 text-green-200 font-mono hover:bg-green-700 hover:text-white transition"
-            onClick={() => setInputMode('tap')}
+            className="px-3 py-2 rounded bg-gray-800 border border-green-700 text-green-200 font-mono hover:bg-green-700 hover:text-white transition"
+            onClick={handleBackspace}
+            tabIndex={-1}
+            aria-label="Backspace"
+            disabled={isWin}
           >
-            Tap Letters
+            ⌫
+          </button>
+          <button type="submit" className="px-4 py-2 rounded bg-green-700 text-white font-mono hover:bg-green-600 transition" disabled={isWin}>
+            Submit
           </button>
         </form>
       )}
@@ -363,15 +327,25 @@ function Letterboxed() {
           </button>
         </div>
       )}
-      <div className="w-full max-w-xs">
-        <h2 className="text-green-300 font-mono mb-2">Your Words:</h2>
-        <ul className="space-y-1">
-          {guesses.map((word, i) => (
-            <li key={i} className="bg-gray-800 border border-green-700 rounded px-3 py-1 text-green-200 font-mono">
-              {word}
-            </li>
-          ))}
-        </ul>
+      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 w-full max-w-xs flex gap-3 justify-center z-40">
+        <button
+          type="button"
+          className="px-3 py-1 rounded bg-gray-900 border border-green-800 text-green-400 font-mono text-sm opacity-80 hover:opacity-100 hover:bg-green-900 hover:text-white transition"
+          onClick={handleReset}
+        >
+          Reset
+        </button>
+        <button
+          type="button"
+          className="px-3 py-1 rounded bg-gray-900 border border-green-800 text-green-400 font-mono text-sm opacity-80 hover:opacity-100 hover:bg-green-900 hover:text-white transition"
+          onClick={() => {
+            navigator.clipboard.writeText("Play LetterBoxed: https://games.jthome.net/letterboxed");
+            setToast('Share link copied to clipboard!');
+            setTimeout(() => setToast(""), 2000);
+          }}
+        >
+          Share
+        </button>
       </div>
       {toast && (
         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-green-800 text-green-100 px-6 py-3 rounded shadow-lg font-mono text-lg z-50 border border-green-400 animate-fade-in">
