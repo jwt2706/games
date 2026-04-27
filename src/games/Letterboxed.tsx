@@ -211,24 +211,9 @@ function Letterboxed() {
       return "";
     });
   }
-  // If not the first word, force the first letter to be the required one
-  const requiredFirstLetter = guesses.length > 0 ? guesses[guesses.length - 1].slice(-1) : null;
-
-  // Helper to enforce first letter
-  function enforceFirstLetter(input: string) {
-    if (!requiredFirstLetter) return input;
-    // Always ensure the first letter is requiredFirstLetter
-    if (input.length === 0) return requiredFirstLetter;
-    if (input[0] !== requiredFirstLetter) {
-      // Remove all occurrences of requiredFirstLetter and prepend it
-      return requiredFirstLetter + input.replaceAll(requiredFirstLetter, "").slice(0);
-    }
-    return input;
-  }
 
   // Win condition: all letters used at least once
   const isWin = unusedLetters.length === 0;
-
   const [showHelp, setShowHelp] = useState(false);
 
   return (
@@ -366,9 +351,6 @@ function Letterboxed() {
             value={guess}
             onChange={e => {
               let val = e.target.value.toUpperCase();
-              if (requiredFirstLetter) {
-                val = enforceFirstLetter(val);
-              }
               setGuess(val);
             }}
             className="px-4 py-2 rounded bg-gray-900 border border-green-600 text-green-200 font-mono focus:outline-none focus:ring-2 focus:ring-green-400 w-full sm:w-auto"
