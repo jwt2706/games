@@ -213,10 +213,11 @@ function Letterboxed() {
           </div>
         </div>
       )}
-      <div className="flex flex-col items-center mb-2">
-        <h1 className="text-4xl md:text-5xl font-extrabold text-green-400">Letterboxed</h1>
-      </div>
       <div className="flex flex-col items-center mb-8">
+        <h1 className="text-4xl md:text-5xl font-extrabold text-green-400">Letterboxed</h1>
+        <p className="text-gray-300 mt-1">Puzzle #{getPuzzleNumber()}</p>
+      </div>
+      <div className="flex flex-col items-center my-8">
         <div className="relative w-64 h-64 flex items-center justify-center">
           {/* Top */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 flex gap-2">
