@@ -137,10 +137,6 @@ function Letterboxed() {
     return -1;
   }
 
-  // Track which letters are in the current guess
-  const guessLetters = guess.toUpperCase().split("");
-  const lastGuessLetter = guessLetters.length > 0 ? guessLetters[guessLetters.length - 1] : null;
-
   // Validation logic for a guess
   function validateGuess(word: string): string | null {
     const upper = word.toUpperCase();
@@ -262,7 +258,9 @@ function Letterboxed() {
             {sides[0].map((l, i) => (
               <button
                 key={i}
-                ref={el => (buttonRefs.current[l] = el)}
+                ref={(el) => {
+                  buttonRefs.current[l] = el;
+                }}
                 type="button"
                 className={`w-12 h-12 bg-gray-900 flex items-center justify-center text-2xl font-mono select-none transition focus:outline-none focus:ring-2 focus:ring-green-400
                   ${allUsedLetters.has(l) ? 'border-green-400 text-green-100 bg-green-900 border-2' : 'border-green-600 text-green-300 border-2'}`}
@@ -278,7 +276,9 @@ function Letterboxed() {
             {sides[1].map((l, i) => (
               <button
                 key={i}
-                ref={el => (buttonRefs.current[l] = el)}
+                ref={(el) => {
+                  buttonRefs.current[l] = el;
+                }}
                 type="button"
                 className={`w-12 h-12 bg-gray-900 flex items-center justify-center text-2xl font-mono select-none transition focus:outline-none focus:ring-2 focus:ring-green-400
                   ${allUsedLetters.has(l) ? 'border-green-400 text-green-100 bg-green-900 border-2' : 'border-green-600 text-green-300 border-2'}`}
@@ -294,7 +294,9 @@ function Letterboxed() {
             {sides[2].map((l, i) => (
               <button
                 key={i}
-                ref={el => (buttonRefs.current[l] = el)}
+                ref={(el) => {
+                  buttonRefs.current[l] = el;
+                }}
                 type="button"
                 className={`w-12 h-12 bg-gray-900 flex items-center justify-center text-2xl font-mono select-none transition focus:outline-none focus:ring-2 focus:ring-green-400
                   ${allUsedLetters.has(l) ? 'border-green-400 text-green-100 bg-green-900 border-2' : 'border-green-600 text-green-300 border-2'}`}
@@ -310,7 +312,9 @@ function Letterboxed() {
             {sides[3].map((l, i) => (
               <button
                 key={i}
-                ref={el => (buttonRefs.current[l] = el)}
+                ref={(el) => {
+                  buttonRefs.current[l] = el;
+                }}
                 type="button"
                 className={`w-12 h-12 bg-gray-900 flex items-center justify-center text-2xl font-mono select-none transition focus:outline-none focus:ring-2 focus:ring-green-400
                   ${allUsedLetters.has(l) ? 'border-green-400 text-green-100 bg-green-900 border-2' : 'border-green-600 text-green-300 border-2'}`}
