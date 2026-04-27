@@ -17,13 +17,10 @@ function seededRandom(seed: string) {
 function generatePuzzle(puzzleNumber: number) {
   const seed = puzzleNumber.toString();
   const rand = seededRandom(seed);
-
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
   const VOWELS = ["A", "E", "I", "O", "U"];
-
   const vowels = alphabet.filter(l => VOWELS.includes(l));
   const consonants = alphabet.filter(l => !VOWELS.includes(l));
-
   const vowelTarget = rand() < 0.5 ? 3 : 4;
 
   let letters: string[] = [];
@@ -89,7 +86,7 @@ function isSolvable(sides: string[][], wordList: string[]): boolean {
 
     // win condition
     if (usedLetters.size === targetLetters.size) {
-        console.log("Solution found (≤5 words):", path);
+        //console.log("Solution found (≤5 words):", path);
         return true;
     }
 
