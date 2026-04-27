@@ -57,7 +57,6 @@ function isSolvable(sides: string[][], wordList: string[]): boolean {
     }
     return -1;
   }
-
   const targetLetters = new Set(sides.flat());
 
   function dfs(
@@ -67,7 +66,7 @@ function isSolvable(sides: string[][], wordList: string[]): boolean {
   ): boolean {
     // Win condition
     if (usedLetters.size === targetLetters.size) {
-      console.log("Solution found:", path);
+      //console.log("Solution found:", path);
       return true;
     }
 
@@ -77,19 +76,15 @@ function isSolvable(sides: string[][], wordList: string[]): boolean {
 
       // Avoid useless cycles
       if (path.includes(word)) continue;
-
       const newUsed = new Set(usedLetters);
       for (const l of word) newUsed.add(l);
 
       // Prune: must add at least one new letter
       if (newUsed.size === usedLetters.size) continue;
-
       if (dfs(word, newUsed, [...path, word])) return true;
     }
-
     return false;
   }
-
   return dfs(null, new Set(), []);
 }
 
@@ -109,6 +104,7 @@ function Letterboxed() {
   const [error, setError] = useState<string>("");
   const [toast, setToast] = useState<string>("");
   const [wordSet, setWordSet] = useState<Set<string> | null>(null);
+  const [sides, setSides] = useState<string[][]>([[], [], [], []]);
 
   const buttonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -168,15 +164,20 @@ function Letterboxed() {
       });
   }, []);
 
-  // Generate today's puzzle, retry if not solvable (up to 10 times)
-  let sides: string[][] = [];
-  const puzzleNumber = getPuzzleNumber();
-  // Only check solvability if wordSet is loaded
-  for (let i = 0; i < 10; i++) {
-    sides = generatePuzzle(puzzleNumber + i); // Use puzzleNumber with retries
-    // If wordSet is not loaded yet, skip solvability check
-    if (!wordSet || isSolvable(sides, Array.from(wordSet))) break;
-  }
+  useEffect(() => {
+    if (!wordSet) return;
+    const puzzleNumber = getPuzzleNumber();
+    let generated: string[][] = [];
+
+    for (let i = 0; i < 10; i++) {
+      const attempt = generatePuzzle(puzzleNumber + i);
+      if (isSolvable(attempt, Array.from(wordSet))) {
+        generated = attempt;
+        break;
+      }
+    }
+    setSides(generated);
+  }, [wordSet]);
 
   // Track which letters have been used across all guesses
   const usedLetters = new Set(guesses.join("").split(""));
