@@ -21,6 +21,9 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Create CNAME file
+        run: echo "games.jthome.net" > ./dist/CNAME
+
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
         with:
