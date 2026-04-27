@@ -14,19 +14,38 @@ function seededRandom(seed: string) {
   };
 }
 
-// Generate a puzzle for a given puzzle number
 function generatePuzzle(puzzleNumber: number) {
-  const seed = puzzleNumber.toString(); // Use puzzle number directly as the seed
+  const seed = puzzleNumber.toString();
   const rand = seededRandom(seed);
+
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+  const VOWELS = ["A", "E", "I", "O", "U"];
+
+  const vowels = alphabet.filter(l => VOWELS.includes(l));
+  const consonants = alphabet.filter(l => !VOWELS.includes(l));
+
+  const vowelTarget = rand() < 0.5 ? 3 : 4;
+
   let letters: string[] = [];
-  // Pick 12 unique letters
-  while (letters.length < 12) {
-    const i = Math.floor(rand() * alphabet.length);
-    const l = alphabet[i];
+
+  // pick vowels
+  while (letters.length < vowelTarget) {
+    const l = vowels[Math.floor(rand() * vowels.length)];
     if (!letters.includes(l)) letters.push(l);
   }
-  // Group into 4 sides
+
+  // pick consonants
+  while (letters.length < 12) {
+    const l = consonants[Math.floor(rand() * consonants.length)];
+    if (!letters.includes(l)) letters.push(l);
+  }
+
+  // shuffle to distribute vowels
+  for (let i = letters.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [letters[i], letters[j]] = [letters[j], letters[i]];
+  }
+
   return [0, 1, 2, 3].map(i => letters.slice(i * 3, i * 3 + 3));
 }
 
@@ -59,30 +78,30 @@ function isSolvable(sides: string[][], wordList: string[]): boolean {
   }
   const targetLetters = new Set(sides.flat());
 
+  const MAX_WORDS = 5;
   function dfs(
     currentWord: string | null,
     usedLetters: Set<string>,
     path: string[]
   ): boolean {
-    // Win condition
+    // hard limit: too many words
+    if (path.length > MAX_WORDS) return false;
+
+    // win condition
     if (usedLetters.size === targetLetters.size) {
-      //console.log("Solution found:", path);
-      return true;
+        console.log("Solution found (≤5 words):", path);
+        return true;
     }
 
     for (const word of validWords) {
-      // Chain rule
-      if (currentWord && word[0] !== currentWord[currentWord.length - 1]) continue;
-
-      // Avoid useless cycles
-      if (path.includes(word)) continue;
-      const newUsed = new Set(usedLetters);
-      for (const l of word) newUsed.add(l);
-
-      // Prune: must add at least one new letter
-      if (newUsed.size === usedLetters.size) continue;
-      if (dfs(word, newUsed, [...path, word])) return true;
+        if (currentWord && word[0] !== currentWord[currentWord.length - 1]) continue;
+        if (path.includes(word)) continue;
+        const newUsed = new Set(usedLetters);
+        for (const l of word) newUsed.add(l);
+        if (newUsed.size === usedLetters.size) continue;
+        if (dfs(word, newUsed, [...path, word])) return true;
     }
+
     return false;
   }
   return dfs(null, new Set(), []);
