@@ -30,13 +30,67 @@ function generatePuzzle(puzzleNumber: number) {
   return [0, 1, 2, 3].map(i => letters.slice(i * 3, i * 3 + 3));
 }
 
-// Check if at least one word can be made from the puzzle letters
 function isSolvable(sides: string[][], wordList: string[]): boolean {
   const allowed = new Set(sides.flat());
-  return wordList.some(word =>
-    word.length >= 3 &&
-    [...word].every(l => allowed.has(l))
-  );
+
+  // Pre-filter words that are valid on this board
+  const validWords = wordList.filter(word => {
+    if (word.length < 3) return false;
+
+    // Only allowed letters
+    if (![...word].every(l => allowed.has(l))) return false;
+
+    // No consecutive letters from same side
+    let prevSide = getSideIndex(word[0], sides);
+    for (let i = 1; i < word.length; i++) {
+      const side = getSideIndex(word[i], sides);
+      if (side === prevSide) return false;
+      prevSide = side;
+    }
+
+    return true;
+  });
+
+  function getSideIndex(letter: string, sides: string[][]) {
+    for (let i = 0; i < 4; i++) {
+      if (sides[i].includes(letter)) return i;
+    }
+    return -1;
+  }
+
+  const targetLetters = new Set(sides.flat());
+
+  function dfs(
+    currentWord: string | null,
+    usedLetters: Set<string>,
+    path: string[]
+  ): boolean {
+    // Win condition
+    if (usedLetters.size === targetLetters.size) {
+      console.log("Solution found:", path);
+      return true;
+    }
+
+    for (const word of validWords) {
+      // Chain rule
+      if (currentWord && word[0] !== currentWord[currentWord.length - 1]) continue;
+
+      // Avoid useless cycles
+      if (path.includes(word)) continue;
+
+      const newUsed = new Set(usedLetters);
+      for (const l of word) newUsed.add(l);
+
+      // Prune: must add at least one new letter
+      if (newUsed.size === usedLetters.size) continue;
+
+      if (dfs(word, newUsed, [...path, word])) return true;
+    }
+
+    return false;
+  }
+
+  return dfs(null, new Set(), []);
 }
 
 // Helper: get puzzle number (days since first puzzle)
