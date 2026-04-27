@@ -14,8 +14,9 @@ function seededRandom(seed: string) {
   };
 }
 
-// Generate a puzzle for a given date seed
-function generatePuzzle(seed: string) {
+// Generate a puzzle for a given puzzle number
+function generatePuzzle(puzzleNumber: number) {
+  const seed = puzzleNumber.toString(); // Use puzzle number directly as the seed
   const rand = seededRandom(seed);
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
   let letters: string[] = [];
@@ -38,16 +39,9 @@ function isSolvable(sides: string[][], wordList: string[]): boolean {
   );
 }
 
-// Get today's date as seed
-function getTodaySeed() {
-  const d = new Date();
-  return d.toISOString().slice(0, 10); // YYYY-MM-DD
-}
-
-
 // Helper: get puzzle number (days since first puzzle)
 function getPuzzleNumber() {
-  const start = new Date();
+  const start = new Date("2026-01-01"); // Fixed start date for the first puzzle
   start.setHours(0, 0, 0, 0);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -74,10 +68,10 @@ function Letterboxed() {
 
   // Generate today's puzzle, retry if not solvable (up to 10 times)
   let sides: string[][] = [];
-  let seed = getTodaySeed();
+  const puzzleNumber = getPuzzleNumber();
   // Only check solvability if wordSet is loaded
   for (let i = 0; i < 10; i++) {
-    sides = generatePuzzle(seed + (i ? `-${i}` : ""));
+    sides = generatePuzzle(puzzleNumber + i); // Use puzzleNumber with retries
     // If wordSet is not loaded yet, skip solvability check
     if (!wordSet || isSolvable(sides, Array.from(wordSet))) break;
   }
