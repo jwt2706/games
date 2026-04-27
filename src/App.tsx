@@ -18,7 +18,7 @@ function App() {
         </p>
       </header>
       <section className="w-full max-w-3xl grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <a href="/letterboxed" className="bg-gray-900 border border-green-600 font-mono text-left p-6 flex flex-col items-start justify-center hover:bg-green-950 transition group shadow-md rounded-none">
+        <a href="#letterboxed" className="bg-gray-900 border border-green-600 font-mono text-left p-6 flex flex-col items-start justify-center hover:bg-green-950 transition group shadow-md rounded-none">
           <span className="text-2xl mb-2 select-none">🔲</span>
           <span className="text-lg font-bold text-green-400 group-hover:text-green-200 tracking-wider">Letterboxed</span>
         </a>
