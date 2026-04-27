@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 function seededRandom(seed: string) {
   let h = 2166136261 >>> 0;
@@ -55,6 +55,54 @@ function Letterboxed() {
   const [error, setError] = useState<string>("");
   const [toast, setToast] = useState<string>("");
   const [wordSet, setWordSet] = useState<Set<string> | null>(null);
+
+  const buttonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const svgRef = useRef<SVGSVGElement | null>(null);
+
+  useEffect(() => {
+    // Redraw lines whenever guesses or guess changes
+    if (svgRef.current) {
+      const svg = svgRef.current;
+      const lines = svg.querySelectorAll("line");
+      lines.forEach(line => line.remove());
+
+      const allGuessedLetters = guesses.join("") + guess;
+
+      allGuessedLetters.split("").forEach((letter, index) => {
+        if (index === 0) return; // Skip the first letter
+
+        const prevLetter = allGuessedLetters[index - 1];
+        const currentLetter = letter;
+
+        const prevButton = buttonRefs.current[prevLetter];
+        const currentButton = buttonRefs.current[currentLetter];
+
+        if (!prevButton || !currentButton) return;
+
+        const prevRect = prevButton.getBoundingClientRect();
+        const currentRect = currentButton.getBoundingClientRect();
+
+        const svgRect = svg.getBoundingClientRect();
+
+        const prevX = prevRect.left + prevRect.width / 2 - svgRect.left;
+        const prevY = prevRect.top + prevRect.height / 2 - svgRect.top;
+        const currentX = currentRect.left + currentRect.width / 2 - svgRect.left;
+        const currentY = currentRect.top + currentRect.height / 2 - svgRect.top;
+
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", prevX.toString());
+        line.setAttribute("y1", prevY.toString());
+        line.setAttribute("x2", currentX.toString());
+        line.setAttribute("y2", currentY.toString());
+        line.setAttribute("stroke", "green");
+        line.setAttribute("stroke-width", "2");
+        svg.appendChild(line);
+      });
+    }
+  }, [guesses, guess]);
+
+  // Update button styles to reflect used letters
+  const allUsedLetters = new Set(guesses.join("").split("").concat(guess.split("")));
 
   // Load words.txt on mount
   React.useEffect(() => {
@@ -219,89 +267,74 @@ function Letterboxed() {
       </div>
       <div className="flex flex-col items-center my-8">
         <div className="relative w-64 h-64 flex items-center justify-center">
+          <svg
+            ref={svgRef}
+            className="absolute inset-0 w-full h-full pointer-events-none"
+            xmlns="http://www.w3.org/2000/svg"
+          ></svg>
           {/* Top */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 flex gap-2">
-            {sides[0].map((l, i) => {
-              const isInGuess = guessLetters.includes(l);
-              const isSelected = lastGuessLetter === l && guessLetters.lastIndexOf(l) === guessLetters.length - 1;
-              return (
-                <button
-                  key={i}
-                  type="button"
-                  className={`w-12 h-12 bg-gray-900 flex items-center justify-center text-2xl font-mono select-none transition focus:outline-none focus:ring-2 focus:ring-green-400
-                    ${isSelected ? 'border-4 border-green-400 text-green-100 bg-green-900' : isInGuess ? 'border-green-400 text-green-100 bg-green-900 border-2' : usedLetters.has(l) ? 'border-green-400 text-green-100 bg-green-900 border-2' : 'border-green-600 text-green-300 border-2'}`}
-                  title={usedLetters.has(l) ? 'Used' : 'Unused'}
-                  onClick={() => !isWin && handleLetterClick(l)}
-                  tabIndex={0}
-                  aria-label={`Add letter ${l}`}
-                >
-                  {l}
-                </button>
-              );
-            })}
+            {sides[0].map((l, i) => (
+              <button
+                key={i}
+                ref={el => (buttonRefs.current[l] = el)}
+                type="button"
+                className={`w-12 h-12 bg-gray-900 flex items-center justify-center text-2xl font-mono select-none transition focus:outline-none focus:ring-2 focus:ring-green-400
+                  ${allUsedLetters.has(l) ? 'border-green-400 text-green-100 bg-green-900 border-2' : 'border-green-600 text-green-300 border-2'}`}
+                onClick={() => handleLetterClick(l)}
+                aria-label={`Add letter ${l}`}
+              >
+                {l}
+              </button>
+            ))}
           </div>
           {/* Right */}
           <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col gap-2">
-            {sides[1].map((l, i) => {
-              const isInGuess = guessLetters.includes(l);
-              const isSelected = lastGuessLetter === l && guessLetters.lastIndexOf(l) === guessLetters.length - 1;
-              return (
-                <button
-                  key={i}
-                  type="button"
-                  className={`w-12 h-12 bg-gray-900 flex items-center justify-center text-2xl font-mono select-none transition focus:outline-none focus:ring-2 focus:ring-green-400
-                    ${isSelected ? 'border-4 border-green-400 text-green-100 bg-green-900' : isInGuess ? 'border-green-400 text-green-100 bg-green-900 border-2' : usedLetters.has(l) ? 'border-green-400 text-green-100 bg-green-900 border-2' : 'border-green-600 text-green-300 border-2'}`}
-                  title={usedLetters.has(l) ? 'Used' : 'Unused'}
-                  onClick={() => !isWin && handleLetterClick(l)}
-                  tabIndex={0}
-                  aria-label={`Add letter ${l}`}
-                >
-                  {l}
-                </button>
-              );
-            })}
+            {sides[1].map((l, i) => (
+              <button
+                key={i}
+                ref={el => (buttonRefs.current[l] = el)}
+                type="button"
+                className={`w-12 h-12 bg-gray-900 flex items-center justify-center text-2xl font-mono select-none transition focus:outline-none focus:ring-2 focus:ring-green-400
+                  ${allUsedLetters.has(l) ? 'border-green-400 text-green-100 bg-green-900 border-2' : 'border-green-600 text-green-300 border-2'}`}
+                onClick={() => handleLetterClick(l)}
+                aria-label={`Add letter ${l}`}
+              >
+                {l}
+              </button>
+            ))}
           </div>
           {/* Bottom */}
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex gap-2">
-            {sides[2].map((l, i) => {
-              const isInGuess = guessLetters.includes(l);
-              const isSelected = lastGuessLetter === l && guessLetters.lastIndexOf(l) === guessLetters.length - 1;
-              return (
-                <button
-                  key={i}
-                  type="button"
-                  className={`w-12 h-12 bg-gray-900 flex items-center justify-center text-2xl font-mono select-none transition focus:outline-none focus:ring-2 focus:ring-green-400
-                    ${isSelected ? 'border-4 border-green-400 text-green-100 bg-green-900' : isInGuess ? 'border-green-400 text-green-100 bg-green-900 border-2' : usedLetters.has(l) ? 'border-green-400 text-green-100 bg-green-900 border-2' : 'border-green-600 text-green-300 border-2'}`}
-                  title={usedLetters.has(l) ? 'Used' : 'Unused'}
-                  onClick={() => !isWin && handleLetterClick(l)}
-                  tabIndex={0}
-                  aria-label={`Add letter ${l}`}
-                >
-                  {l}
-                </button>
-              );
-            })}
+            {sides[2].map((l, i) => (
+              <button
+                key={i}
+                ref={el => (buttonRefs.current[l] = el)}
+                type="button"
+                className={`w-12 h-12 bg-gray-900 flex items-center justify-center text-2xl font-mono select-none transition focus:outline-none focus:ring-2 focus:ring-green-400
+                  ${allUsedLetters.has(l) ? 'border-green-400 text-green-100 bg-green-900 border-2' : 'border-green-600 text-green-300 border-2'}`}
+                onClick={() => handleLetterClick(l)}
+                aria-label={`Add letter ${l}`}
+              >
+                {l}
+              </button>
+            ))}
           </div>
           {/* Left */}
           <div className="absolute left-0 top-1/2 -translate-y-1/2 flex flex-col gap-2">
-            {sides[3].map((l, i) => {
-              const isInGuess = guessLetters.includes(l);
-              const isSelected = lastGuessLetter === l && guessLetters.lastIndexOf(l) === guessLetters.length - 1;
-              return (
-                <button
-                  key={i}
-                  type="button"
-                  className={`w-12 h-12 bg-gray-900 flex items-center justify-center text-2xl font-mono select-none transition focus:outline-none focus:ring-2 focus:ring-green-400
-                    ${isSelected ? 'border-4 border-green-400 text-green-100 bg-green-900' : isInGuess ? 'border-green-400 text-green-100 bg-green-900 border-2' : usedLetters.has(l) ? 'border-green-400 text-green-100 bg-green-900 border-2' : 'border-green-600 text-green-300 border-2'}`}
-                  title={usedLetters.has(l) ? 'Used' : 'Unused'}
-                  onClick={() => !isWin && handleLetterClick(l)}
-                  tabIndex={0}
-                  aria-label={`Add letter ${l}`}
-                >
-                  {l}
-                </button>
-              );
-            })}
+            {sides[3].map((l, i) => (
+              <button
+                key={i}
+                ref={el => (buttonRefs.current[l] = el)}
+                type="button"
+                className={`w-12 h-12 bg-gray-900 flex items-center justify-center text-2xl font-mono select-none transition focus:outline-none focus:ring-2 focus:ring-green-400
+                  ${allUsedLetters.has(l) ? 'border-green-400 text-green-100 bg-green-900 border-2' : 'border-green-600 text-green-300 border-2'}`}
+                onClick={() => handleLetterClick(l)}
+                aria-label={`Add letter ${l}`}
+              >
+                {l}
+              </button>
+            ))}
           </div>
         </div>
       </div>
