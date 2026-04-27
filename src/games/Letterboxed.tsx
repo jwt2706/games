@@ -449,7 +449,7 @@ function Letterboxed() {
             className="mt-4 px-4 py-2 rounded bg-green-700 text-white font-mono hover:bg-green-600 transition border border-green-400 shadow"
             onClick={() => {
               const puzzleNum = getPuzzleNumber();
-              const shareText = `I solved Letterboxed #${puzzleNum} in ${guesses.length} words!\nPlay: https://games.jthome.net/letterboxed`;
+              const shareText = `I solved Letterboxed #${puzzleNum} in ${guesses.length} words!\nPlay: https://games.jthome.net/#letterboxed`;
               navigator.clipboard.writeText(shareText);
               setToast('Results copied to clipboard!');
               setTimeout(() => setToast(""), 2500);
@@ -471,7 +471,7 @@ function Letterboxed() {
           type="button"
           className="px-3 py-1 rounded bg-gray-900 border border-green-800 text-green-400 font-mono text-sm opacity-80 hover:opacity-100 hover:bg-green-900 hover:text-white transition"
           onClick={() => {
-            navigator.clipboard.writeText("Play LetterBoxed: https://games.jthome.net/letterboxed");
+            navigator.clipboard.writeText("Play LetterBoxed: https://games.jthome.net/#letterboxed");
             setToast('Share link copied to clipboard!');
             setTimeout(() => setToast(""), 2000);
           }}
