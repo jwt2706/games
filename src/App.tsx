@@ -3,7 +3,7 @@ function App() {
     <main className="min-h-screen pixel-bg flex flex-col items-center justify-start py-16 px-4">
       <a
         href="https://jthome.net"
-        className="fixed top-4 left-4 z-50 bg-green-700 hover:bg-green-600 text-white font-mono px-4 py-2 rounded shadow transition border border-green-900"
+        className="fixed top-4 left-4 z-50 bg-gray-800 hover:bg-green-700 text-green-300 hover:text-white font-mono px-4 py-2 rounded shadow transition border border-green-900"
         target="_blank"
         rel="noopener noreferrer"
       >

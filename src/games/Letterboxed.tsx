@@ -187,14 +187,38 @@ function Letterboxed() {
   // Win condition: all letters used at least once
   const isWin = unusedLetters.length === 0;
 
+  const [showHelp, setShowHelp] = useState(false);
+
   return (
-    <main className="min-h-screen pixel-bg flex flex-col items-center justify-center py-16 px-4">
+    <main className="min-h-screen pixel-bg flex flex-col items-center justify-start py-16 px-4">
       <a
         href="/"
         className="fixed top-4 left-4 z-50 bg-gray-800 hover:bg-green-700 text-green-300 hover:text-white font-mono px-4 py-2 rounded shadow transition border border-green-900"
       >
         ← Back to Games Menu
       </a>
+      <div className="fixed top-4 right-4 z-50">
+        <button
+          className="bg-gray-800 hover:bg-green-700 text-green-300 hover:text-white font-mono px-4 py-2 rounded shadow transition border border-green-900"
+          onClick={() => setShowHelp(true)}
+        >
+          ❓ Help
+        </button>
+      </div>
+      {showHelp && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-gray-900 text-green-300 p-6 rounded shadow-lg max-w-md w-full">
+            <h2 className="text-2xl font-bold mb-4">How to Play</h2>
+            <p className="mb-4">Form words using the letters on the board. Each word must start with the last letter of the previous word. Use all the letters to win!</p>
+            <button
+              className="px-4 py-2 bg-green-700 text-white rounded hover:bg-green-600 transition"
+              onClick={() => setShowHelp(false)}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
       <div className="flex flex-col items-center mb-2">
         <h1 className="text-4xl md:text-5xl font-extrabold text-green-400">Letterboxed</h1>
       </div>
@@ -301,7 +325,7 @@ function Letterboxed() {
       {!isWin && (
         <form
           onSubmit={handleSubmit}
-          className="flex gap-2 mb-6 items-center"
+          className="flex flex-wrap gap-2 mb-6 items-center justify-center"
           onKeyDown={e => {
             if (e.key === "Backspace" && guess.length === 0 && guesses.length > 0) {
               e.preventDefault();
@@ -319,7 +343,7 @@ function Letterboxed() {
               }
               setGuess(val);
             }}
-            className="px-4 py-2 rounded bg-gray-900 border border-green-600 text-green-200 font-mono focus:outline-none focus:ring-2 focus:ring-green-400"
+            className="px-4 py-2 rounded bg-gray-900 border border-green-600 text-green-200 font-mono focus:outline-none focus:ring-2 focus:ring-green-400 w-full sm:w-auto"
             placeholder="Enter word..."
             disabled={isWin}
           />
