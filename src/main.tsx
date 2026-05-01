@@ -3,9 +3,11 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
 import Letterboxed from "./games/Letterboxed";
+import Hangman from "./games/Hangman";
 
 const games: Record<string, React.FC> = {
   letterboxed: Letterboxed,
+  hangman: Hangman,
 };
 
 function Main() {
