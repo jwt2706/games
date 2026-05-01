@@ -165,8 +165,6 @@ function Hangman() {
   async function shareResult() {
     if (!targetWord || !isGameOver) return;
 
-    const misses = "X".repeat(wrongGuesses);
-    const remaining = "-".repeat(Math.max(0, MAX_WRONG_GUESSES - wrongGuesses));
     const shareText = [
       `Hangman #${puzzleNumber} ${resultLabel} with ${wrongGuesses}/${MAX_WRONG_GUESSES}`,
       `${window.location.origin}${window.location.pathname}#hangman`
