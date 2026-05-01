@@ -33,6 +33,7 @@ function Hangman() {
   const [guessedLetters, setGuessedLetters] = useState<string[]>([]);
   const [wrongGuesses, setWrongGuesses] = useState(0);
   const [statusMessage, setStatusMessage] = useState("");
+  const [shareStatus, setShareStatus] = useState("");
 
   const puzzleNumber = getPuzzleNumber();
 
@@ -68,6 +69,8 @@ function Hangman() {
   const isWon = targetWord.length > 0 && targetWord.split("").every((letter) => guessedLetters.includes(letter));
   const isLost = wrongGuesses >= MAX_WRONG_GUESSES;
   const isGameOver = isWon || isLost;
+
+  const resultLabel = isWon ? "Won" : isLost ? "Lost" : "In Progress";
 
   const hangmanStages = [
     [
@@ -175,6 +178,27 @@ function Hangman() {
     setGuessedLetters([]);
     setWrongGuesses(0);
     setStatusMessage("");
+    setShareStatus("");
+  }
+
+  async function shareResult() {
+    if (!targetWord || !isGameOver) return;
+
+    const misses = "X".repeat(wrongGuesses);
+    const remaining = "-".repeat(Math.max(0, MAX_WRONG_GUESSES - wrongGuesses));
+    const shareText = [
+      `Hangman #${puzzleNumber} ${resultLabel}`,
+      `Wrong guesses: ${wrongGuesses}/${MAX_WRONG_GUESSES} (${misses}${remaining})`,
+      `Word length: ${targetWord.length}`,
+      `${window.location.origin}${window.location.pathname}#hangman`
+    ].join("\n");
+
+    try {
+      await navigator.clipboard.writeText(shareText);
+      setShareStatus("Result copied to clipboard.");
+    } catch {
+      setShareStatus("Could not copy automatically. You can copy manually from the game screen.");
+    }
   }
 
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
@@ -212,14 +236,25 @@ function Hangman() {
             {statusMessage && <p className="text-yellow-300">{statusMessage}</p>}
             {isWon && <p className="text-green-300 font-bold">You win! Great job.</p>}
             {isLost && <p className="text-red-300 font-bold">You lost. The word was {targetWord}.</p>}
+            {shareStatus && <p className="text-blue-300">{shareStatus}</p>}
 
-            <button
-              type="button"
-              className="self-start bg-gray-800 hover:bg-green-700 text-green-300 hover:text-white px-4 py-2 border border-green-900 transition"
-              onClick={resetPuzzle}
-            >
-              Reset Puzzle
-            </button>
+            <div className="flex flex-wrap gap-3">
+              <button
+                type="button"
+                className="self-start bg-gray-800 hover:bg-green-700 text-green-300 hover:text-white px-4 py-2 border border-green-900 transition disabled:opacity-60 disabled:cursor-not-allowed"
+                onClick={shareResult}
+                disabled={!isGameOver || !targetWord}
+              >
+                Share Result
+              </button>
+              <button
+                type="button"
+                className="self-start bg-gray-800 hover:bg-green-700 text-green-300 hover:text-white px-4 py-2 border border-green-900 transition"
+                onClick={resetPuzzle}
+              >
+                Reset Puzzle
+              </button>
+            </div>
           </div>
         </section>
 
