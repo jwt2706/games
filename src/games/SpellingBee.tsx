@@ -261,12 +261,12 @@ function SpellingBee() {
   const center = puzzle.center;
   const outerLetters = puzzle.letters.filter((l) => l !== center);
   const hexPositions = [
-    { letter: outerLetters[0], className: "left-1/2 top-3 -translate-x-1/2 -translate-y-1/2" },
-    { letter: outerLetters[1], className: "right-4 top-[26%] -translate-y-1/2" },
-    { letter: outerLetters[2], className: "right-4 bottom-[26%] translate-y-1/2" },
-    { letter: outerLetters[3], className: "left-1/2 bottom-3 -translate-x-1/2 translate-y-1/2" },
-    { letter: outerLetters[4], className: "left-4 bottom-[26%] translate-y-1/2" },
-    { letter: outerLetters[5], className: "left-4 top-[26%] -translate-y-1/2" }
+    { letter: outerLetters[0], className: "left-1/2 top-5 -translate-x-1/2" },
+    { letter: outerLetters[1], className: "right-8 top-[35%] -translate-y-1/2" },
+    { letter: outerLetters[2], className: "right-8 bottom-[35%] translate-y-1/2" },
+    { letter: outerLetters[3], className: "left-1/2 bottom-5 -translate-x-1/2" },
+    { letter: outerLetters[4], className: "left-8 bottom-[35%] translate-y-1/2" },
+    { letter: outerLetters[5], className: "left-8 top-[35%] -translate-y-1/2" }
   ];
 
   return (
@@ -290,12 +290,12 @@ function SpellingBee() {
 
             <div className="font-mono text-3xl tracking-[0.2em] text-green-200 min-h-12 break-all">{guess || "_"}</div>
 
-            <div className="relative mx-auto h-72 w-72 max-w-full">
+            <div className="relative mx-auto h-64 w-64 max-w-full">
               {hexPositions.map(({ letter, className }) => (
                 <button
                   key={letter}
                   type="button"
-                  className={`absolute flex h-14 w-14 items-center justify-center border bg-gray-800 text-xl font-mono text-green-200 transition hover:bg-green-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-green-400 ${className}`}
+                  className={`absolute flex h-13 w-13 items-center justify-center border bg-gray-800 text-lg font-mono text-green-200 transition hover:bg-green-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-green-400 ${className}`}
                   style={{ clipPath: "polygon(25% 6%, 75% 6%, 100% 50%, 75% 94%, 25% 94%, 0 50%)" }}
                   onClick={() => addLetter(letter)}
                   aria-label={`Add letter ${letter}`}
@@ -306,7 +306,7 @@ function SpellingBee() {
 
               <button
                 type="button"
-                className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center border-2 border-green-400 bg-green-700 text-xl font-mono text-white shadow-lg shadow-green-900/40 transition hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300"
+                className="absolute left-1/2 top-1/2 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center border-2 border-green-400 bg-green-700 text-lg font-mono text-white shadow-lg shadow-green-900/40 transition hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300"
                 style={{ clipPath: "polygon(25% 6%, 75% 6%, 100% 50%, 75% 94%, 25% 94%, 0 50%)" }}
                 onClick={() => addLetter(center)}
                 aria-label={`Add center letter ${center}`}
