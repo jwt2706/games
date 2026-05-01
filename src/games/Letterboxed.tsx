@@ -7,24 +7,56 @@ import { letterboxedWordFilter, loadWords } from '../utils/wordList';
 function generatePuzzle(puzzleNumber: number) {
   const seed = puzzleNumber.toString();
   const rand = seededRandom(seed);
+
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+  const FREQUENCIES: Record<string, number> = {
+    A: 8.17, B: 1.49, C: 2.78, D: 4.25, E: 12.70, F: 2.23, G: 2.02,
+    H: 6.09, I: 6.97, J: 0.15, K: 0.77, L: 4.03, M: 2.41, N: 6.75,
+    O: 7.51, P: 1.93, Q: 0.10, R: 5.99, S: 6.33, T: 9.06, U: 2.76,
+    V: 0.98, W: 2.36, X: 0.15, Y: 1.97, Z: 0.07
+  };
+
   const VOWELS = ["A", "E", "I", "O", "U"];
   const vowels = alphabet.filter(l => VOWELS.includes(l));
   const consonants = alphabet.filter(l => !VOWELS.includes(l));
+
   const vowelTarget = rand() < 0.5 ? 3 : 4;
+
+  // Helper: pick unique letters from a pool using weighted probabilities
+  function pickWeighted(pool: string[], target: number) {
+    const poolCopy = pool.slice();
+    const picks: string[] = [];
+    while (picks.length < target && poolCopy.length > 0) {
+      const total = poolCopy.reduce((s, l) => s + (FREQUENCIES[l] ?? 1), 0);
+      let r = rand() * total;
+      let chosenIndex = 0;
+      for (let i = 0; i < poolCopy.length; i++) {
+        r -= (FREQUENCIES[poolCopy[i]] ?? 1);
+        if (r <= 0) {
+          chosenIndex = i;
+          break;
+        }
+      }
+      const choice = poolCopy[Math.min(chosenIndex, poolCopy.length - 1)];
+      picks.push(choice);
+      poolCopy.splice(poolCopy.indexOf(choice), 1);
+    }
+    return picks;
+  }
 
   let letters: string[] = [];
 
-  // pick vowels
-  while (letters.length < vowelTarget) {
-    const l = vowels[Math.floor(rand() * vowels.length)];
-    if (!letters.includes(l)) letters.push(l);
-  }
+  // pick vowels (weighted by frequency so E/A/I are likelier)
+  letters = letters.concat(pickWeighted(vowels, vowelTarget));
 
-  // pick consonants
+  // pick consonants (weighted so common consonants appear more often)
+  letters = letters.concat(pickWeighted(consonants, 12 - letters.length));
+
+  // fallback: if we still don't have 12 (shouldn't happen) fill randomly
   while (letters.length < 12) {
-    const l = consonants[Math.floor(rand() * consonants.length)];
-    if (!letters.includes(l)) letters.push(l);
+    const remaining = alphabet.filter(l => !letters.includes(l));
+    const l = remaining[Math.floor(rand() * remaining.length)];
+    letters.push(l);
   }
 
   // shuffle to distribute vowels
