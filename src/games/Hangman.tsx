@@ -168,9 +168,7 @@ function Hangman() {
     const misses = "X".repeat(wrongGuesses);
     const remaining = "-".repeat(Math.max(0, MAX_WRONG_GUESSES - wrongGuesses));
     const shareText = [
-      `Hangman #${puzzleNumber} ${resultLabel}`,
-      `Wrong guesses: ${wrongGuesses}/${MAX_WRONG_GUESSES} (${misses}${remaining})`,
-      `Word length: ${targetWord.length}`,
+      `Hangman #${puzzleNumber} ${resultLabel} with ${wrongGuesses}/${MAX_WRONG_GUESSES}`,
       `${window.location.origin}${window.location.pathname}#hangman`
     ].join("\n");
 

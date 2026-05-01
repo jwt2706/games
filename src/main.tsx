@@ -4,10 +4,12 @@ import "./index.css";
 import App from "./App";
 import Letterboxed from "./games/Letterboxed";
 import Hangman from "./games/Hangman";
+import SpellingBee from "./games/SpellingBee";
 
 const games: Record<string, React.FC> = {
   letterboxed: Letterboxed,
   hangman: Hangman,
+  spellingbee: SpellingBee,
 };
 
 function Main() {

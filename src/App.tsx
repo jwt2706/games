@@ -26,6 +26,10 @@ function App() {
           <span className="text-2xl mb-2 select-none">🪢</span>
           <span className="text-lg font-bold text-green-400 group-hover:text-green-200 tracking-wider">Hangman</span>
         </a>
+        <a href="#spellingbee" className="bg-gray-900 border border-green-600 font-mono text-left p-6 flex flex-col items-start justify-center hover:bg-green-950 transition group shadow-md rounded-none">
+          <span className="text-2xl mb-2 select-none">🐝</span>
+          <span className="text-lg font-bold text-green-400 group-hover:text-green-200 tracking-wider">Spelling Bee</span>
+        </a>
       </section>
     </main>
   )
