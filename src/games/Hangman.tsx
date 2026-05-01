@@ -1,31 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { copyTextToClipboard } from "../utils/clipboard";
+import { getPuzzleNumber, selectDailyItem } from "../utils/puzzle";
+import { hangmanWordFilter, loadWords } from "../utils/wordList";
 
 const MAX_WRONG_GUESSES = 6;
-
-function getPuzzleNumber() {
-  const start = new Date("2026-01-01");
-  start.setHours(0, 0, 0, 0);
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const diff = Math.floor((today.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-  return diff + 1;
-}
-
-function selectDailyWord(words: string[], puzzleNumber: number) {
-  if (words.length === 0) return "";
-
-  let h = 2166136261 >>> 0;
-  const seed = puzzleNumber.toString();
-  for (let i = 0; i < seed.length; i++) {
-    h ^= seed.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-
-  const index = h % words.length;
-  return words[index];
-}
 
 function Hangman() {
   const [words, setWords] = useState<string[]>([]);
@@ -38,24 +16,27 @@ function Hangman() {
   const puzzleNumber = getPuzzleNumber();
 
   useEffect(() => {
-    fetch("/words.txt")
-      .then((res) => res.text())
-      .then((text) => {
-        const cleanedWords = text
-          .split(/\r?\n/)
-          .map((w) => w.trim().toUpperCase())
-          .filter((w) => w.length >= 4 && w.length <= 10)
-          .filter((w) => /^[A-Z]+$/.test(w));
-        setWords(cleanedWords);
+    let cancelled = false;
+
+    loadWords(hangmanWordFilter)
+      .then((loadedWords) => {
+        if (cancelled) return;
+        setWords(loadedWords);
       })
       .catch(() => {
+        if (cancelled) return;
         setStatusMessage("Could not load words list.");
       });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
     if (words.length === 0) return;
-    setTargetWord(selectDailyWord(words, puzzleNumber));
+    const selectedWord = selectDailyItem(words, puzzleNumber);
+    setTargetWord(selectedWord ?? "");
   }, [words, puzzleNumber]);
 
   const maskedWord = useMemo(() => {
@@ -194,7 +175,11 @@ function Hangman() {
     ].join("\n");
 
     try {
-      await navigator.clipboard.writeText(shareText);
+      const copied = await copyTextToClipboard(shareText);
+      if (!copied) {
+        setShareStatus("Could not copy automatically. You can copy manually from the game screen.");
+        return;
+      }
       setShareStatus("Result copied to clipboard.");
     } catch {
       setShareStatus("Could not copy automatically. You can copy manually from the game screen.");

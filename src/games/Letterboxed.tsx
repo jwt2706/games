@@ -1,18 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
-
-function seededRandom(seed: string) {
-  let h = 2166136261 >>> 0;
-  for (let i = 0; i < seed.length; i++) {
-    h ^= seed.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return () => {
-    h += h << 13; h ^= h >>> 7;
-    h += h << 3; h ^= h >>> 17;
-    h += h << 5;
-    return (h >>> 0) / 4294967295;
-  };
-}
+import { useState, useRef, useEffect } from 'react';
+import type { FormEvent } from 'react';
+import { copyTextToClipboard } from '../utils/clipboard';
+import { getPuzzleNumber, seededRandom } from '../utils/puzzle';
+import { letterboxedWordFilter, loadWords } from '../utils/wordList';
 
 function generatePuzzle(puzzleNumber: number) {
   const seed = puzzleNumber.toString();
@@ -104,16 +94,6 @@ function isSolvable(sides: string[][], wordList: string[]): boolean {
   return dfs(null, new Set(), []);
 }
 
-// Helper: get puzzle number (days since first puzzle)
-function getPuzzleNumber() {
-  const start = new Date("2026-01-01"); // Fixed start date for the first puzzle
-  start.setHours(0, 0, 0, 0);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const diff = Math.floor((today.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-  return diff + 1;
-}
-
 function Letterboxed() {
   const [guess, setGuess] = useState("");
   const [guesses, setGuesses] = useState<string[]>([]);
@@ -171,13 +151,22 @@ function Letterboxed() {
   const allUsedLetters = new Set(guesses.join("").split("").concat(guess.split("")));
 
   // Load words.txt on mount
-  React.useEffect(() => {
-    fetch('/words.txt')
-      .then(res => res.text())
-      .then(text => {
-        const words = text.split(/\r?\n/).map(w => w.trim().toUpperCase()).filter(w => w.length >= 3);
+  useEffect(() => {
+    let cancelled = false;
+
+    loadWords(letterboxedWordFilter)
+      .then((words) => {
+        if (cancelled) return;
         setWordSet(new Set(words));
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setError("Could not load word list.");
       });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -233,7 +222,7 @@ function Letterboxed() {
     return null;
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: FormEvent) {
     e.preventDefault();
     submitGuess();
   }
@@ -425,7 +414,7 @@ function Letterboxed() {
             type="text"
             value={guess}
             onChange={e => {
-              let val = e.target.value.toUpperCase();
+              const val = e.target.value.toUpperCase();
               setGuess(val);
             }}
             className="px-4 py-2 rounded bg-gray-900 border border-green-600 text-green-200 font-mono focus:outline-none focus:ring-2 focus:ring-green-400 w-full sm:w-auto"
@@ -463,11 +452,11 @@ function Letterboxed() {
           <button
             type="button"
             className="mt-4 px-4 py-2 rounded bg-green-700 text-white font-mono hover:bg-green-600 transition border border-green-400 shadow"
-            onClick={() => {
+            onClick={async () => {
               const puzzleNum = getPuzzleNumber();
               const shareText = `I solved Letterboxed #${puzzleNum} in ${guesses.length} words!\nPlay: https://games.jthome.net/#letterboxed`;
-              navigator.clipboard.writeText(shareText);
-              setToast('Results copied to clipboard!');
+              const copied = await copyTextToClipboard(shareText);
+              setToast(copied ? 'Results copied to clipboard!' : 'Could not copy results.');
               setTimeout(() => setToast(""), 2500);
             }}
           >
@@ -486,9 +475,9 @@ function Letterboxed() {
         <button
           type="button"
           className="px-3 py-1 rounded bg-gray-900 border border-green-800 text-green-400 font-mono text-sm opacity-80 hover:opacity-100 hover:bg-green-900 hover:text-white transition"
-          onClick={() => {
-            navigator.clipboard.writeText("Play LetterBoxed: https://games.jthome.net/#letterboxed");
-            setToast('Share link copied to clipboard!');
+          onClick={async () => {
+            const copied = await copyTextToClipboard("Play LetterBoxed: https://games.jthome.net/#letterboxed");
+            setToast(copied ? 'Share link copied to clipboard!' : 'Could not copy share link.');
             setTimeout(() => setToast(""), 2000);
           }}
         >
