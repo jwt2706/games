@@ -13,10 +13,8 @@ function uniqueLetters(word: string) {
   return Array.from(new Set(word.split("")));
 }
 
-function scoreWord(word: string, puzzleLetters: Set<string>) {
-  const isPangram = puzzleLetters.size === uniqueLetters(word).length && [...puzzleLetters].every((l) => word.includes(l));
-  if (word.length === 4) return isPangram ? 8 : 1;
-  return word.length + (isPangram ? 7 : 0);
+function scoreWord(word: string) {
+  return word.length;
 }
 
 function shuffleDeterministic(letters: string[], seed: string) {
@@ -121,16 +119,12 @@ function SpellingBee() {
 
   const totalScore = useMemo(() => {
     if (!puzzle) return 0;
-    return foundWords.reduce((sum, word) => sum + scoreWord(word, letterSet), 0);
-  }, [foundWords, letterSet, puzzle]);
+    return foundWords.reduce((sum, word) => sum + scoreWord(word), 0);
+  }, [foundWords, puzzle]);
 
-  const maxScore = useMemo(() => {
-    if (!puzzle) return 0;
-    return Array.from(puzzle.validWords).reduce((sum, word) => sum + scoreWord(word, letterSet), 0);
-  }, [letterSet, puzzle]);
-
-  const progressPercent = maxScore > 0 ? Math.min(100, Math.round((totalScore / maxScore) * 100)) : 0;
-  const isSolved = puzzle ? foundWords.length === puzzle.validWords.size : false;
+  const targetScore = 20;
+  const progressPercent = targetScore > 0 ? Math.min(100, Math.round((totalScore / targetScore) * 100)) : 0;
+  const isSolved = targetScore > 0 && totalScore >= targetScore;
 
   function submitGuess() {
     if (!puzzle) return;
@@ -235,8 +229,8 @@ function SpellingBee() {
     if (!puzzle) return;
     const shareText = [
       `Spelling Bee #${puzzleNumber}`,
-      `Score: ${totalScore}/${maxScore}`,
-      `Words found: ${foundWords.length}/${puzzle.validWords.size}`,
+      `Score: ${totalScore}/${targetScore} goal`,
+      `Words found: ${foundWords.length}`,
       `${window.location.origin}${window.location.pathname}#spellingbee`
     ].join("\n");
 
@@ -331,14 +325,14 @@ function SpellingBee() {
             </div>
 
             {message && <p className="text-yellow-300 font-mono">{message}</p>}
-            {isSolved && <p className="text-green-300 font-mono font-bold">Perfect: you found every valid word!</p>}
+            {isSolved && <p className="text-green-300 font-mono font-bold">Goal reached! Keep going for a higher score.</p>}
             {shareMessage && <p className="text-blue-300 font-mono">{shareMessage}</p>}
           </div>
 
           <div className="bg-gray-900 border border-green-600 p-6 flex flex-col gap-4 font-mono text-green-200">
             <h2 className="text-lg text-green-400">Stats</h2>
-            <p>Score: <span className="text-green-100 font-bold">{totalScore}</span> / {maxScore}</p>
-            <p>Words found: <span className="text-green-100 font-bold">{foundWords.length}</span> / {puzzle.validWords.size}</p>
+            <p>Score: <span className="text-green-100 font-bold">{totalScore}</span> / {targetScore}</p>
+            <p>Words found: <span className="text-green-100 font-bold">{foundWords.length}</span></p>
             <p>Progress: <span className="text-green-100 font-bold">{progressPercent}%</span></p>
 
             <div className="w-full h-3 bg-gray-800 border border-green-700">
